@@ -1,18 +1,34 @@
 ﻿# CPRI State-Level Hackathon - Screening Round Submission
 
 **Team:** Tabahi  
-
-## Overview
-This repository contains the end-to-end reproducible machine learning pipeline and screening round submission files for the CPRI State-Level Hackathon.
-
-The solution addresses:
-- **Task 1:** Identify abnormal and invalid test records using engineered physical features and an anomaly detection classifier.
-- **Task 2:** Accurately predict the `Reference_Parameter` (hot-spot temperature rise) on verified valid test records.
-- **Task 3:** Automated test summary generation (`summary.json` & `summary.csv`).
+**Project:** Transformer Hot-Spot Temperature Rise AI & Anomaly Detection Dashboard
 
 ---
 
-## Headline Results (5-Fold Cross-Validation on Training Data)
+## Interactive Intelligence Dashboard
+
+An interactive web frontend dashboard built with **Flask**, **Tailwind CSS**, and **Chart.js**.
+
+### Key Features
+- **Executive KPI Cards:** Real-time metrics for total test records, validity ratios, temperature ranges, and CV performance.
+- **Interactive "What-If" Simulator:** Live sliders for electrical operating conditions ($V, I, T_{amb}, t$) and terminal sensors ($S_1, S_2, S_3, S_4$) with real-time AI classification and temperature rise prediction.
+- **Visual Analytics:** Interactive Chart.js graphs for temperature rise distribution, multivariate anomaly score vs. sensor spread, and feature importance rankings for both the Classifier and Regressor.
+- **Dataset Explorer:** Searchable, filterable table for all 350 screening test records with status pills and instant export/download options.
+- **One-Click Artifact Export:** Instant download for `Tabahi.csv`, `summary.json`, `summary.csv`, and `model_report.txt`.
+
+### How to Run the Web Dashboard
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
+
+# 2. Launch the web application
+python app.py
+```
+Open your browser at **`http://localhost:5000`**.
+
+---
+
+## Headline ML Results (5-Fold Cross-Validation on Training Data)
 
 | Metric / Task | Result |
 |---|---|
@@ -25,14 +41,17 @@ The solution addresses:
 ## Repository Contents
 
 ```text
+├── app.py                                            <- Flask dashboard backend & live inference API
+├── templates/
+│   └── index.html                                    <- Modern glassmorphism dashboard UI
 ├── README.md                                         <- Repository documentation
-├── requirements.txt                                  <- Python dependencies
-├── .gitignore                                        <- Standard Git ignore rules
+├── requirements.txt                                  <- Python dependencies (Flask, pandas, scikit-learn, etc.)
+├── .gitignore                                        <- Git ignore rules
 └── Tabahi_submission/
     ├── CPRI_Hackathon_Screening_Dataset_PARTICIPANT.xlsx <- Dataset workbook
     ├── Methodology_Note_Tabahi.docx                  <- 2-page methodology note
     ├── README.txt                                    <- Original submission instructions
-    ├── solution.py                                   <- End-to-end ML pipeline script
+    ├── solution.py                                   <- End-to-end ML pipeline script (CLI)
     ├── Tabahi.csv                                    <- Required prediction file
     ├── model_report.txt                              <- Model metrics & feature importances
     ├── summary.json                                  <- Task 3 summary (JSON)
@@ -42,15 +61,9 @@ The solution addresses:
 
 ---
 
-## Installation & Usage
+## Running the CLI Pipeline Directly
 
-### 1. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### 2. Run the Solution Pipeline
-Navigate to `Tabahi_submission/` (or specify paths) and run:
+To re-run the pure CLI pipeline without the web interface:
 
 ```bash
 cd Tabahi_submission
@@ -58,6 +71,6 @@ python solution.py --input CPRI_Hackathon_Screening_Dataset_PARTICIPANT.xlsx --t
 ```
 
 This regenerates:
-- `output/Tabahi.csv` (predictions with `Test_ID`, `Predicted_Reference_Parameter`, `Validity_Label`)
+- `output/Tabahi.csv`
 - `output/summary.json` & `output/summary.csv`
 - `output/model_report.txt`
