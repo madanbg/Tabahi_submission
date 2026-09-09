@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPRI Hackathon | Team Tabahi Intelligence Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f4ff',
+                            500: '#4f46e5',
+                            600: '#4338ca',
+                            700: '#3730a3',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #090d16;
+            color: #f1f5f9;
+        }
+        .glass-card {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-card:hover {
+            border-color: rgba(99, 102, 241, 0.25);
+        }
+        .glow-emerald {
+            box-shadow: 0 0 35px -5px rgba(16, 185, 129, 0.25);
+        }
+        .glow-rose {
+            box-shadow: 0 0 35px -5px rgba(244, 63, 94, 0.25);
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090d16;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Navigation Header -->
+    <header class="sticky top-0 z-50 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <i class="fa-solid fa-bolt-lightning text-white text-lg"></i>
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="font-bold text-lg tracking-tight text-white">CPRI Hackathon</span>
+                        <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Screening Round</span>
+                    </div>
+                    <p class="text-xs text-slate-400">Team Tabahi &bull; Transformer Hot-Spot Temperature Rise AI</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <a href="https://github.com/madanbg/Tabahi_submission" target="_blank" class="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700/80 flex items-center space-x-2 transition-all">
+                    <i class="fa-brands fa-github text-sm"></i>
+                    <span>GitHub Repo</span>
+                </a>
+                <div class="dropdown relative inline-block text-left">
+                    <button id="downloadDropdownBtn" onclick="toggleDropdown()" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white text-xs font-medium shadow-md shadow-indigo-500/20 flex items-center space-x-2 transition-all">
+                        <i class="fa-solid fa-download"></i>
+                        <span>Export Artifacts</span>
+                        <i class="fa-solid fa-chevron-down text-[10px] ml-1"></i>
+                    </button>
+                    <div id="downloadDropdownMenu" class="hidden absolute right-0 mt-2 w-52 rounded-xl glass-card bg-slate-900 border border-slate-700/70 shadow-2xl py-1 z-50">
+                        <a href="/download/Tabahi.csv" class="flex items-center px-4 py-2 text-xs text-slate-200 hover:bg-indigo-600/20 hover:text-indigo-300">
+                            <i class="fa-solid fa-file-csv w-5 text-emerald-400"></i> Tabahi.csv (Predictions)
+                        </a>
+                        <a href="/download/summary.json" class="flex items-center px-4 py-2 text-xs text-slate-200 hover:bg-indigo-600/20 hover:text-indigo-300">
+                            <i class="fa-solid fa-file-code w-5 text-amber-400"></i> summary.json (Task 3)
+                        </a>
+                        <a href="/download/summary.csv" class="flex items-center px-4 py-2 text-xs text-slate-200 hover:bg-indigo-600/20 hover:text-indigo-300">
+                            <i class="fa-solid fa-file-lines w-5 text-blue-400"></i> summary.csv (Summary Table)
+                        </a>
+                        <a href="/download/model_report.txt" class="flex items-center px-4 py-2 text-xs text-slate-200 hover:bg-indigo-600/20 hover:text-indigo-300">
+                            <i class="fa-solid fa-chart-simple w-5 text-purple-400"></i> model_report.txt (Metrics)
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Headline KPI Metrics Grid -->
+        <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+            <!-- Metric 1: Total Records -->
+            <div class="glass-card rounded-2xl p-4 flex flex-col justify-between">
+                <div class="flex items-center justify-between text-slate-400 text-xs font-medium">
+                    <span>Records Analysed</span>
+                    <i class="fa-solid fa-database text-slate-500"></i>
+                </div>
+                <div class="mt-2">
+                    <span id="kpiRecords" class="text-2xl font-bold tracking-tight text-white">350</span>
+                    <span class="text-xs text-slate-400 block mt-0.5">Test Dataset</span>
+                </div>
+            </div>
+
+            <!-- Metric 2: Valid Records -->
+            <div class="glass-card rounded-2xl p-4 flex flex-col justify-between border-emerald-500/20">
+                <div class="flex items-center justify-between text-emerald-400 text-xs font-medium">
+                    <span>Valid Records</span>
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                </div>
+                <div class="mt-2">
+                    <span id="kpiValid" class="text-2xl font-bold tracking-tight text-emerald-300">313</span>
+                    <span class="text-xs text-emerald-400/70 block mt-0.5">89.4% reliable runs</span>
+                </div>
+            </div>
+
+            <!-- Metric 3: Invalid / Anomalous -->
+            <div class="glass-card rounded-2xl p-4 flex flex-col justify-between border-rose-500/20">
+                <div class="flex items-center justify-between text-rose-400 text-xs font-medium">
+                    <span>Invalid / Faulty</span>
+                    <i class="fa-solid fa-triangle-exclamation text-rose-400"></i>
+                </div>
+                <div class="mt-2">
+                    <span id="kpiInvalid" class="text-2xl font-bold tracking-tight text-rose-400">37</span>
+                    <span class="text-xs text-rose-400/70 block mt-0.5">10.6% flagged</span>
+                </div>
+            </div>
+
+            <!-- Metric 4: Avg Temperature Rise -->
+            <div class="glass-card rounded-2xl p-4 flex flex-col justify-between">
+                <div class="flex items-center justify-between text-slate-400 text-xs font-medium">
+                    <span>Avg Temp Rise</span>
+                    <i class="fa-solid fa-temperature-half text-indigo-400"></i>
+                </div>
+                <div class="mt-2">
+                    <span id="kpiAvgTemp" class="text-2xl font-bold tracking-tight text-indigo-300">26.29°C</span>
+                    <span class="text-xs text-slate-400 block mt-0.5">Range: 12.97 - 55.45°C</span>
+                </div>
+            </div>
+
+            <!-- Metric 5: Regressor Fit R2 -->
+            <div class="glass-card rounded-2xl p-4 flex flex-col justify-between border-indigo-500/20">
+                <div class="flex items-center justify-between text-indigo-400 text-xs font-medium">
+                    <span>Regressor R²</span>
+                    <i class="fa-solid fa-chart-line text-indigo-400"></i>
+                </div>
+                <div class="mt-2">
+                    <span id="kpiR2" class="text-2xl font-bold tracking-tight text-white">0.9866</span>
+                    <span class="text-xs text-indigo-400/70 block mt-0.5">MAE: 0.73°C | RMSE: 1.25°C</span>
+                </div>
+            </div>
+
+            <!-- Metric 6: Classifier Accuracy -->
+            <div class="glass-card rounded-2xl p-4 flex flex-col justify-between border-purple-500/20">
+                <div class="flex items-center justify-between text-purple-400 text-xs font-medium">
+                    <span>Classifier Acc</span>
+                    <i class="fa-solid fa-bullseye text-purple-400"></i>
+                </div>
+                <div class="mt-2">
+                    <span id="kpiAcc" class="text-2xl font-bold tracking-tight text-white">96.5%</span>
+                    <span class="text-xs text-purple-400/70 block mt-0.5">F1 (Invalid): 0.8511</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation Tabs -->
+        <div class="border-b border-slate-800 flex items-center space-x-2">
+            <button onclick="switchTab('overview')" id="tabBtn-overview" class="tab-btn px-4 py-3 text-sm font-semibold text-indigo-400 border-b-2 border-indigo-500 flex items-center space-x-2">
+                <i class="fa-solid fa-gauge-high"></i>
+                <span>Executive Overview</span>
+            </button>
+            <button onclick="switchTab('simulator')" id="tabBtn-simulator" class="tab-btn px-4 py-3 text-sm font-medium text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center space-x-2">
+                <i class="fa-solid fa-sliders"></i>
+                <span>Interactive What-If Simulator</span>
+            </button>
+            <button onclick="switchTab('analytics')" id="tabBtn-analytics" class="tab-btn px-4 py-3 text-sm font-medium text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center space-x-2">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Visual Analytics & Insights</span>
+            </button>
+            <button onclick="switchTab('records')" id="tabBtn-records" class="tab-btn px-4 py-3 text-sm font-medium text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center space-x-2">
+                <i class="fa-solid fa-table-list"></i>
+                <span>Dataset Explorer (350 Runs)</span>
+            </button>
+        </div>
+
+        <!-- TAB 1: EXECUTIVE OVERVIEW -->
+        <div id="tabContent-overview" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Pipeline Architecture -->
+                <div class="lg:col-span-2 glass-card rounded-2xl p-6 space-y-5">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-microchip text-indigo-400"></i>
+                            <span>End-to-End Machine Learning Pipeline</span>
+                        </h2>
+                        <span class="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 font-mono">Tasks 1, 2 & 3</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+                            <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-xs mb-3">01</div>
+                            <h3 class="text-sm font-semibold text-slate-200 mb-1">Feature Engineering</h3>
+                            <p class="text-xs text-slate-400 leading-relaxed">Median sensor imputation, terminal consistency spreads (S1-S2, S1-S3), physical range checks, and unsupervised IsolationForest scoring.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+                            <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center font-bold text-xs mb-3">02</div>
+                            <h3 class="text-sm font-semibold text-slate-200 mb-1">Task 1: Classifier</h3>
+                            <p class="text-xs text-slate-400 leading-relaxed">Balanced Random Forest separates true sensor errors from legitimate operational regimes. 96.5% Accuracy across 5-fold CV.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+                            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold text-xs mb-3">03</div>
+                            <h3 class="text-sm font-semibold text-slate-200 mb-1">Task 2: Regressor</h3>
+                            <p class="text-xs text-slate-400 leading-relaxed">Trained strictly on verified Valid records to avoid noise contamination. Predicts hot-spot temperature rise with R2 = 0.9866.</p>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-gradient-to-r from-indigo-950/40 via-purple-950/20 to-slate-900/50 border border-indigo-500/20">
+                        <div class="flex items-start space-x-3">
+                            <i class="fa-solid fa-quote-left text-indigo-400 text-lg mt-0.5"></i>
+                            <div class="space-y-1">
+                                <h4 class="text-xs font-semibold uppercase tracking-wider text-indigo-300">Methodology Note</h4>
+                                <p id="approachSummaryText" class="text-xs text-slate-300 leading-relaxed">Loading approach summary...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Attention Test IDs -->
+                <div class="glass-card rounded-2xl p-6 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-base font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-triangle-exclamation text-rose-400"></i>
+                            <span>Highest Attention Runs</span>
+                        </h2>
+                        <span class="text-xs text-slate-400">Top Anomaly Prob</span>
+                    </div>
+                    <p class="text-xs text-slate-400">Records flagged by the classifier requiring manual engineer review due to high risk of thermocouple detachment or severe electrical inconsistency.</p>
+
+                    <div id="topAttentionList" class="space-y-3 mt-4"></div>
+
+                    <div class="pt-2 border-t border-slate-800">
+                        <button onclick="filterTableByInvalid()" class="w-full py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium border border-slate-700 transition flex items-center justify-center space-x-2">
+                            <span>View All 37 Flagged Records</span>
+                            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass-card rounded-2xl p-5 space-y-3">
+                    <h3 class="text-sm font-bold text-white flex items-center justify-between">
+                        <span>Predicted Temperature Rise Distribution</span>
+                        <span class="text-xs text-slate-400 font-normal">Reference Parameter (°C)</span>
+                    </h3>
+                    <div class="h-64 relative">
+                        <canvas id="overviewDistChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-5 space-y-3">
+                    <h3 class="text-sm font-bold text-white flex items-center justify-between">
+                        <span>Terminal Sensor Consistency vs Anomaly Score</span>
+                        <span class="text-xs text-slate-400 font-normal">S_spread vs IsolationForest</span>
+                    </h3>
+                    <div class="h-64 relative">
+                        <canvas id="overviewScatterChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: INTERACTIVE WHAT-IF SIMULATOR -->
+        <div id="tabContent-simulator" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Controls & Sliders -->
+                <div class="lg:col-span-7 glass-card rounded-2xl p-6 space-y-6">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                        <div>
+                            <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                                <i class="fa-solid fa-sliders text-indigo-400"></i>
+                                <span>Operating & Sensor Parameters</span>
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-1">Adjust parameters to observe live classifier inference and temperature rise prediction.</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs text-slate-400">Presets:</span>
+                            <button onclick="applyPreset('normal')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-300">Normal</button>
+                            <button onclick="applyPreset('overload')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-medium text-amber-300">Overload</button>
+                            <button onclick="applyPreset('sensor_drift')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-medium text-rose-300">Sensor Fault</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-400 mb-3">1. Operating Conditions</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-300 font-medium">Applied Voltage</span>
+                                    <span id="val_Applied_Voltage_kV" class="font-mono text-indigo-300 font-semibold">11.0 kV</span>
+                                </div>
+                                <input id="slider_Applied_Voltage_kV" type="range" min="3.3" max="33.0" step="0.1" value="11.0" oninput="updateSimValue('Applied_Voltage_kV', this.value, ' kV')" class="w-full accent-indigo-500 cursor-pointer">
+                            </div>
+
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-300 font-medium">Load Current</span>
+                                    <span id="val_Load_Current_A" class="font-mono text-indigo-300 font-semibold">630 A</span>
+                                </div>
+                                <input id="slider_Load_Current_A" type="range" min="100" max="1600" step="10" value="630" oninput="updateSimValue('Load_Current_A', this.value, ' A')" class="w-full accent-indigo-500 cursor-pointer">
+                            </div>
+
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-300 font-medium">Ambient Temperature</span>
+                                    <span id="val_Ambient_Temperature_C" class="font-mono text-indigo-300 font-semibold">30.0 °C</span>
+                                </div>
+                                <input id="slider_Ambient_Temperature_C" type="range" min="10" max="55" step="0.5" value="30.0" oninput="updateSimValue('Ambient_Temperature_C', this.value, ' °C')" class="w-full accent-indigo-500 cursor-pointer">
+                            </div>
+
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-300 font-medium">Test Duration</span>
+                                    <span id="val_Test_Duration_min" class="font-mono text-indigo-300 font-semibold">120 min</span>
+                                </div>
+                                <input id="slider_Test_Duration_min" type="range" min="15" max="300" step="5" value="120" oninput="updateSimValue('Test_Duration_min', this.value, ' min')" class="w-full accent-indigo-500 cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-purple-400 mb-3">2. Terminal Thermocouple Sensors</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-300 font-medium">Sensor S1 (Phase A)</span>
+                                    <span id="val_Sensor_S1" class="font-mono text-purple-300 font-semibold">45.0 °C</span>
+                                </div>
+                                <input id="slider_Sensor_S1" type="range" min="-10" max="95" step="0.5" value="45.0" oninput="updateSimValue('Sensor_S1', this.value, ' °C')" class="w-full accent-purple-500 cursor-pointer">
+                            </div>
+
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-300 font-medium">Sensor S2 (Phase B)</span>
+                                    <span id="val_Sensor_S2" class="font-mono text-purple-300 font-semibold">44.5 °C</span>
+                                </div>
+                                <input id="slider_Sensor_S2" type="range" min="-10" max="95" step="0.5" value="44.5" oninput="updateSimValue('Sensor_S2', this.value, ' °C')" class="w-full accent-purple-500 cursor-pointer">
+                            </div>
+
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-300 font-medium">Sensor S3 (Phase C)</span>
+                                    <span id="val_Sensor_S3" class="font-mono text-purple-300 font-semibold">45.2 °C</span>
+                                </div>
+                                <input id="slider_Sensor_S3" type="range" min="-10" max="95" step="0.5" value="45.2" oninput="updateSimValue('Sensor_S3', this.value, ' °C')" class="w-full accent-purple-500 cursor-pointer">
+                            </div>
+
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-300 font-medium">Sensor S4 (Auxiliary)</span>
+                                    <span id="val_Sensor_S4" class="font-mono text-purple-300 font-semibold">25.0 °C</span>
+                                </div>
+                                <input id="slider_Sensor_S4" type="range" min="0" max="90" step="0.5" value="25.0" oninput="updateSimValue('Sensor_S4', this.value, ' °C')" class="w-full accent-purple-500 cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Live AI Inference Output Panel -->
+                <div class="lg:col-span-5 space-y-6">
+                    <div id="simResultCard" class="glass-card rounded-2xl p-6 border-emerald-500/30 glow-emerald transition-all duration-300 space-y-5">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Real-Time Inference</span>
+                            <span id="simStatusPill" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center space-x-1.5">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <span>VALID RUN</span>
+                            </span>
+                        </div>
+
+                        <div class="text-center py-4 bg-slate-900/60 rounded-xl border border-slate-800">
+                            <span class="text-xs text-slate-400 block mb-1">Predicted Hot-Spot Temperature Rise</span>
+                            <div class="flex items-baseline justify-center space-x-1">
+                                <span id="simTempRise" class="text-4xl font-extrabold text-white font-mono">25.42</span>
+                                <span class="text-lg text-indigo-400 font-bold">°C</span>
+                            </div>
+                            <span class="text-[11px] text-slate-500 block mt-1">Target: Reference_Parameter</span>
+                        </div>
+
+                        <div class="space-y-3 text-xs">
+                            <div class="flex justify-between items-center py-1.5 border-b border-slate-800/80">
+                                <span class="text-slate-400">Validity Confidence</span>
+                                <span id="simConfidence" class="font-mono font-bold text-slate-200">98.4%</span>
+                            </div>
+
+                            <div class="flex justify-between items-center py-1.5 border-b border-slate-800/80">
+                                <span class="text-slate-400">Anomaly Probability</span>
+                                <span id="simFaultProb" class="font-mono font-bold text-slate-200">1.6%</span>
+                            </div>
+
+                            <div class="flex justify-between items-center py-1.5 border-b border-slate-800/80">
+                                <span class="text-slate-400">Terminal Spread (S1-S3 Std)</span>
+                                <span id="simSpread" class="font-mono font-bold text-slate-200">0.36 °C</span>
+                            </div>
+
+                            <div class="flex justify-between items-center py-1.5 border-b border-slate-800/80">
+                                <span class="text-slate-400">Multivariate Anomaly Score</span>
+                                <span id="simAnomalyScore" class="font-mono font-bold text-slate-200">0.4281</span>
+                            </div>
+
+                            <div class="flex justify-between items-center py-1.5">
+                                <span class="text-slate-400">Physical Range Error Flag</span>
+                                <span id="simHardError" class="font-mono font-bold text-emerald-400">None (Passed)</span>
+                            </div>
+                        </div>
+
+                        <div id="simDiagnosisBox" class="p-3.5 rounded-xl bg-emerald-950/30 border border-emerald-500/20 text-xs text-emerald-200/90 leading-relaxed">
+                            <i class="fa-solid fa-circle-check text-emerald-400 mr-1.5"></i>
+                            <span id="simDiagnosisText">Consistent thermal readings across all 3 phases. Normal operating regime detected.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: VISUAL ANALYTICS -->
+        <div id="tabContent-analytics" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass-card rounded-2xl p-6 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-base font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-shield-halved text-purple-400"></i>
+                            <span>Task 1: Validity Classifier Feature Importance</span>
+                        </h3>
+                        <span class="text-xs px-2.5 py-0.5 rounded-full bg-purple-500/10 text-purple-400 font-mono">Random Forest</span>
+                    </div>
+                    <p class="text-xs text-slate-400">Terminal consistency (S_spread, differences between terminal sensors) dominates invalid detection.</p>
+                    <div class="h-64 relative">
+                        <canvas id="clfImportanceChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-base font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-chart-column text-indigo-400"></i>
+                            <span>Task 2: Regressor Feature Importance</span>
+                        </h3>
+                        <span class="text-xs px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 font-mono">Random Forest</span>
+                    </div>
+                    <p class="text-xs text-slate-400">Thermodynamic analysis: Load_Current_A accounts for ~90% of variance, matching Joule heating physics.</p>
+                    <div class="h-64 relative">
+                        <canvas id="regImportanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: DATASET EXPLORER -->
+        <div id="tabContent-records" class="tab-content hidden space-y-4">
+            <div class="glass-card rounded-2xl p-5 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                        <h2 class="text-base font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-table text-indigo-400"></i>
+                            <span>Screening Test Records (350 Runs)</span>
+                        </h2>
+                        <p class="text-xs text-slate-400">Filtered predictions exported in <code class="text-indigo-300 font-mono">Tabahi.csv</code></p>
+                    </div>
+
+                    <div class="flex items-center space-x-3">
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-400"></i>
+                            <input id="tableSearchInput" type="text" oninput="filterTable()" placeholder="Search Test ID..." class="pl-8 pr-3 py-1.5 rounded-lg bg-slate-900 text-xs text-slate-200 border border-slate-700/80 focus:border-indigo-500 focus:outline-none w-44">
+                        </div>
+
+                        <select id="tableStatusFilter" onchange="filterTable()" class="px-3 py-1.5 rounded-lg bg-slate-900 text-xs text-slate-200 border border-slate-700/80 focus:border-indigo-500 focus:outline-none">
+                            <option value="ALL">All Records (350)</option>
+                            <option value="Valid">Valid Only (313)</option>
+                            <option value="Invalid">Invalid Only (37)</option>
+                            <option value="ATTENTION">Top Attention Runs</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto rounded-xl border border-slate-800">
+                    <table class="w-full text-left text-xs text-slate-300">
+                        <thead class="bg-slate-900 text-[11px] uppercase tracking-wider text-slate-400 font-semibold border-b border-slate-800">
+                            <tr>
+                                <th class="py-3 px-3">Test ID</th>
+                                <th class="py-3 px-3">Status</th>
+                                <th class="py-3 px-3">Predicted Rise (°C)</th>
+                                <th class="py-3 px-3">Voltage (kV)</th>
+                                <th class="py-3 px-3">Current (A)</th>
+                                <th class="py-3 px-3">Amb Temp (°C)</th>
+                                <th class="py-3 px-3">S1 / S2 / S3 (°C)</th>
+                                <th class="py-3 px-3">Anomaly Score</th>
+                                <th class="py-3 px-3 text-right">Invalid Prob</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recordsTableBody" class="divide-y divide-slate-800/60 font-mono"></tbody>
+                    </table>
+                </div>
+
+                <div class="flex items-center justify-between text-xs text-slate-400 pt-2">
+                    <span id="recordCountDisplay">Showing 350 records</span>
+                    <span class="text-slate-500">Auto-generated via CPRI Hackathon screening pipeline</span>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/80 bg-slate-950 py-4 mt-8">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <span>CPRI State-Level Hackathon &bull; Team Tabahi Submission</span>
+            <span class="font-mono text-slate-400">Status: Automated Pipeline Verified (5-Fold CV)</span>
+            <a href="https://github.com/madanbg/Tabahi_submission" target="_blank" class="hover:text-slate-300 flex items-center space-x-1">
+                <i class="fa-brands fa-github"></i>
+                <span>github.com/madanbg/Tabahi_submission</span>
+            </a>
+        </div>
+    </footer>
+
+    <!-- Application Script -->
+    <script>
+        let allRecords = [];
+        let topAttentionIds = ['TST-0002', 'TST-0271', 'TST-0008'];
+        let charts = {};
+
+        function toggleDropdown() {
+            const menu = document.getElementById('downloadDropdownMenu');
+            menu.classList.toggle('hidden');
+        }
+        window.addEventListener('click', function(e) {
+            const btn = document.getElementById('downloadDropdownBtn');
+            const menu = document.getElementById('downloadDropdownMenu');
+            if (btn && !btn.contains(e.target) && menu && !menu.contains(e.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('text-indigo-400', 'border-indigo-500');
+                b.classList.add('text-slate-400', 'border-transparent');
+            });
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+
+            const activeBtn = document.getElementById(`tabBtn-${tabId}`);
+            const activeContent = document.getElementById(`tabContent-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.add('text-indigo-400', 'border-indigo-500');
+                activeBtn.classList.remove('text-slate-400', 'border-transparent');
+            }
+            if (activeContent) activeContent.classList.remove('hidden');
+
+            if (tabId === 'analytics') {
+                setTimeout(renderAnalyticsCharts, 100);
+            }
+        }
+
+        async function fetchDashboardData() {
+            try {
+                const res = await fetch('/api/data');
+                const data = await res.json();
+                
+                if (data.summary) {
+                    document.getElementById('kpiRecords').innerText = data.summary.records_analysed || 350;
+                    document.getElementById('kpiInvalid').innerText = data.summary.abnormal_invalid_records_identified || 37;
+                    document.getElementById('kpiValid').innerText = (data.summary.records_analysed - data.summary.abnormal_invalid_records_identified) || 313;
+                    document.getElementById('kpiAvgTemp').innerText = `${data.summary.predicted_reference_parameter_average}°C`;
+                    document.getElementById('approachSummaryText').innerText = data.summary.approach_summary;
+                    if (data.summary.test_ids_requiring_highest_attention) {
+                        topAttentionIds = data.summary.test_ids_requiring_highest_attention;
+                    }
+                }
+
+                if (data.cv_metrics) {
+                    document.getElementById('kpiR2').innerText = data.cv_metrics.reg_r2;
+                    document.getElementById('kpiAcc').innerText = `${data.cv_metrics.clf_accuracy}%`;
+                }
+
+                allRecords = data.records || [];
+                renderTopAttentionList();
+                renderRecordsTable(allRecords);
+                renderOverviewCharts(allRecords);
+
+                window.clfImportance = data.clf_importance;
+                window.regImportance = data.reg_importance;
+
+            } catch (err) {
+                console.error("Error fetching dashboard data:", err);
+            }
+        }
+
+        function renderTopAttentionList() {
+            const container = document.getElementById('topAttentionList');
+            container.innerHTML = '';
+
+            topAttentionIds.forEach((id, idx) => {
+                const record = allRecords.find(r => r.Test_ID === id) || {};
+                const prob = record.Invalid_Probability || 99.2;
+                const temp = record.Predicted_Reference_Parameter || 24.5;
+
+                const item = document.createElement('div');
+                item.className = 'p-3 rounded-xl bg-slate-900/90 border border-rose-500/30 flex items-center justify-between';
+                item.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-7 h-7 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs font-bold font-mono">#${idx+1}</div>
+                        <div>
+                            <span class="font-bold text-slate-200 font-mono text-xs">${id}</span>
+                            <span class="text-[11px] text-rose-400 block">${prob}% Anomaly Probability</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="font-bold text-slate-200 font-mono text-xs">${temp}°C</span>
+                        <span class="text-[10px] text-slate-400 block">Pred Temp</span>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function filterTableByInvalid() {
+            switchTab('records');
+            document.getElementById('tableStatusFilter').value = 'Invalid';
+            filterTable();
+        }
+
+        function renderRecordsTable(records) {
+            const tbody = document.getElementById('recordsTableBody');
+            tbody.innerHTML = '';
+
+            records.forEach(r => {
+                const isInvalid = r.Validity_Label === 'Invalid';
+                const isAttention = topAttentionIds.includes(r.Test_ID);
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-800/50 transition';
+
+                const statusBadge = isInvalid
+                    ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">Invalid</span>`
+                    : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Valid</span>`;
+
+                const attentionBadge = isAttention
+                    ? `<span class="ml-1.5 px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">ATTN</span>`
+                    : '';
+
+                tr.innerHTML = `
+                    <td class="py-2.5 px-3 font-semibold text-slate-200 flex items-center">
+                        ${r.Test_ID} ${attentionBadge}
+                    </td>
+                    <td class="py-2.5 px-3">${statusBadge}</td>
+                    <td class="py-2.5 px-3 font-bold ${isInvalid ? 'text-rose-300' : 'text-slate-100'}">${r.Predicted_Reference_Parameter}°C</td>
+                    <td class="py-2.5 px-3 text-slate-400">${r.Applied_Voltage_kV}</td>
+                    <td class="py-2.5 px-3 text-slate-400">${r.Load_Current_A}</td>
+                    <td class="py-2.5 px-3 text-slate-400">${r.Ambient_Temperature_C}</td>
+                    <td class="py-2.5 px-3 text-slate-400 text-[11px]">${r.Sensor_S1}/${r.Sensor_S2}/${r.Sensor_S3}</td>
+                    <td class="py-2.5 px-3 text-slate-400">${r.anomaly_score}</td>
+                    <td class="py-2.5 px-3 text-right font-semibold ${isInvalid ? 'text-rose-400' : 'text-slate-400'}">${r.Invalid_Probability}%</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('recordCountDisplay').innerText = `Showing ${records.length} records`;
+        }
+
+        function filterTable() {
+            const query = document.getElementById('tableSearchInput').value.trim().toUpperCase();
+            const status = document.getElementById('tableStatusFilter').value;
+
+            const filtered = allRecords.filter(r => {
+                const matchesQuery = !query || r.Test_ID.toUpperCase().includes(query);
+                let matchesStatus = true;
+                if (status === 'Valid') matchesStatus = r.Validity_Label === 'Valid';
+                else if (status === 'Invalid') matchesStatus = r.Validity_Label === 'Invalid';
+                else if (status === 'ATTENTION') matchesStatus = topAttentionIds.includes(r.Test_ID);
+                return matchesQuery && matchesStatus;
+            });
+
+            renderRecordsTable(filtered);
+        }
+
+        function renderOverviewCharts(records) {
+            const temps = records.map(r => r.Predicted_Reference_Parameter);
+            const bins = [10, 20, 30, 40, 50, 60];
+            const binCounts = [0, 0, 0, 0, 0];
+            temps.forEach(t => {
+                if (t < 20) binCounts[0]++;
+                else if (t < 30) binCounts[1]++;
+                else if (t < 40) binCounts[2]++;
+                else if (t < 50) binCounts[3]++;
+                else binCounts[4]++;
+            });
+
+            const ctxDist = document.getElementById('overviewDistChart').getContext('2d');
+            charts.dist = new Chart(ctxDist, {
+                type: 'bar',
+                data: {
+                    labels: ['10-20°C', '20-30°C', '30-40°C', '40-50°C', '50-60°C'],
+                    datasets: [{
+                        label: 'Record Count',
+                        data: binCounts,
+                        backgroundColor: 'rgba(99, 102, 241, 0.65)',
+                        borderColor: '#6366f1',
+                        borderWidth: 1.5,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }
+                    }
+                }
+            });
+
+            const scatterValid = [];
+            const scatterInvalid = [];
+            records.forEach(r => {
+                const spread = Math.abs(r.Sensor_S1 - r.Sensor_S2) + Math.abs(r.Sensor_S2 - r.Sensor_S3);
+                const pt = { x: Number(spread.toFixed(2)), y: r.anomaly_score };
+                if (r.Validity_Label === 'Invalid') scatterInvalid.push(pt);
+                else scatterValid.push(pt);
+            });
+
+            const ctxScatter = document.getElementById('overviewScatterChart').getContext('2d');
+            charts.scatter = new Chart(ctxScatter, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        { label: 'Valid', data: scatterValid, backgroundColor: 'rgba(16, 185, 129, 0.7)', pointRadius: 3.5 },
+                        { label: 'Invalid / Faulty', data: scatterInvalid, backgroundColor: 'rgba(244, 63, 94, 0.85)', pointRadius: 5 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8', boxWidth: 10 } }
+                    },
+                    scales: {
+                        x: { title: { display: true, text: 'Sensor Spread (°C)', color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                        y: { title: { display: true, text: 'Anomaly Score', color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }
+                    }
+                }
+            });
+        }
+
+        function renderAnalyticsCharts() {
+            if (charts.clfImportance || !window.clfImportance) return;
+
+            const clfLabels = Object.keys(window.clfImportance).slice(0, 8);
+            const clfValues = Object.values(window.clfImportance).slice(0, 8).map(v => (v * 100).toFixed(1));
+
+            const ctxClf = document.getElementById('clfImportanceChart').getContext('2d');
+            charts.clfImportance = new Chart(ctxClf, {
+                type: 'bar',
+                data: {
+                    labels: clfLabels,
+                    datasets: [{
+                        label: 'Importance (%)',
+                        data: clfValues,
+                        backgroundColor: 'rgba(168, 85, 247, 0.7)',
+                        borderColor: '#a855f7',
+                        borderWidth: 1.5,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#cbd5e1', font: { size: 11 } } }
+                    }
+                }
+            });
+
+            const regLabels = Object.keys(window.regImportance).slice(0, 8);
+            const regValues = Object.values(window.regImportance).slice(0, 8).map(v => (v * 100).toFixed(1));
+
+            const ctxReg = document.getElementById('regImportanceChart').getContext('2d');
+            charts.regImportance = new Chart(ctxReg, {
+                type: 'bar',
+                data: {
+                    labels: regLabels,
+                    datasets: [{
+                        label: 'Importance (%)',
+                        data: regValues,
+                        backgroundColor: 'rgba(99, 102, 241, 0.7)',
+                        borderColor: '#6366f1',
+                        borderWidth: 1.5,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#cbd5e1', font: { size: 11 } } }
+                    }
+                }
+            });
+        }
+
+        let simDebounceTimer = null;
+        function updateSimValue(param, val, unit) {
+            document.getElementById(`val_${param}`).innerText = `${val}${unit}`;
+            clearTimeout(simDebounceTimer);
+            simDebounceTimer = setTimeout(runLiveInference, 150);
+        }
+
+        async function runLiveInference() {
+            const payload = {
+                Applied_Voltage_kV: parseFloat(document.getElementById('slider_Applied_Voltage_kV').value),
+                Load_Current_A: parseFloat(document.getElementById('slider_Load_Current_A').value),
+                Ambient_Temperature_C: parseFloat(document.getElementById('slider_Ambient_Temperature_C').value),
+                Test_Duration_min: parseFloat(document.getElementById('slider_Test_Duration_min').value),
+                Sensor_S1: parseFloat(document.getElementById('slider_Sensor_S1').value),
+                Sensor_S2: parseFloat(document.getElementById('slider_Sensor_S2').value),
+                Sensor_S3: parseFloat(document.getElementById('slider_Sensor_S3').value),
+                Sensor_S4: parseFloat(document.getElementById('slider_Sensor_S4').value),
+            };
+
+            try {
+                const res = await fetch('/api/predict_single', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    updateSimUI(data);
+                }
+            } catch (err) {
+                console.error("Inference failed:", err);
+            }
+        }
+
+        function updateSimUI(data) {
+            const card = document.getElementById('simResultCard');
+            const pill = document.getElementById('simStatusPill');
+            const tempRise = document.getElementById('simTempRise');
+            const conf = document.getElementById('simConfidence');
+            const faultProb = document.getElementById('simFaultProb');
+            const spread = document.getElementById('simSpread');
+            const anomaly = document.getElementById('simAnomalyScore');
+            const hardError = document.getElementById('simHardError');
+            const diagBox = document.getElementById('simDiagnosisBox');
+            const diagText = document.getElementById('simDiagnosisText');
+
+            tempRise.innerText = data.predicted_reference_parameter;
+            conf.innerText = `${data.confidence}%`;
+            faultProb.innerText = `${data.invalid_probability}%`;
+            spread.innerText = `${data.sensor_spread} °C`;
+            anomaly.innerText = data.anomaly_score;
+
+            if (data.hard_sensor_error) {
+                hardError.innerText = 'HARD FAULT (Temp <= 0°C)';
+                hardError.className = 'font-mono font-bold text-rose-400';
+            } else {
+                hardError.innerText = 'Passed (Physically sound)';
+                hardError.className = 'font-mono font-bold text-emerald-400';
+            }
+
+            if (data.is_valid) {
+                card.className = 'glass-card rounded-2xl p-6 border-emerald-500/30 glow-emerald transition-all duration-300 space-y-5';
+                pill.className = 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center space-x-1.5';
+                pill.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span>VALID RUN</span>`;
+                diagBox.className = 'p-3.5 rounded-xl bg-emerald-950/30 border border-emerald-500/20 text-xs text-emerald-200/90 leading-relaxed';
+                diagText.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 mr-1.5"></i>Consistent thermal readings across terminals. Test conditions confirmed reliable.`;
+            } else {
+                card.className = 'glass-card rounded-2xl p-6 border-rose-500/30 glow-rose transition-all duration-300 space-y-5';
+                pill.className = 'px-3 py-1 rounded-full text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 flex items-center space-x-1.5';
+                pill.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span><span>INVALID / ABNORMAL</span>`;
+                diagBox.className = 'p-3.5 rounded-xl bg-rose-950/30 border border-rose-500/20 text-xs text-rose-200/90 leading-relaxed';
+                diagText.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-rose-400 mr-1.5"></i>Severe asymmetry or anomaly detected (Spread: ${data.sensor_spread}°C, Anomaly score: ${data.anomaly_score}). Recommended for engineer inspection.`;
+            }
+        }
+
+        function applyPreset(type) {
+            if (type === 'normal') {
+                setSlider('Applied_Voltage_kV', 11.0, ' kV');
+                setSlider('Load_Current_A', 630, ' A');
+                setSlider('Ambient_Temperature_C', 30.0, ' °C');
+                setSlider('Test_Duration_min', 120, ' min');
+                setSlider('Sensor_S1', 45.0, ' °C');
+                setSlider('Sensor_S2', 44.5, ' °C');
+                setSlider('Sensor_S3', 45.2, ' °C');
+                setSlider('Sensor_S4', 25.0, ' °C');
+            } else if (type === 'overload') {
+                setSlider('Applied_Voltage_kV', 11.0, ' kV');
+                setSlider('Load_Current_A', 1450, ' A');
+                setSlider('Ambient_Temperature_C', 38.0, ' °C');
+                setSlider('Test_Duration_min', 180, ' min');
+                setSlider('Sensor_S1', 78.0, ' °C');
+                setSlider('Sensor_S2', 77.2, ' °C');
+                setSlider('Sensor_S3', 78.5, ' °C');
+                setSlider('Sensor_S4', 32.0, ' °C');
+            } else if (type === 'sensor_drift') {
+                setSlider('Applied_Voltage_kV', 11.0, ' kV');
+                setSlider('Load_Current_A', 750, ' A');
+                setSlider('Ambient_Temperature_C', 28.0, ' °C');
+                setSlider('Test_Duration_min', 90, ' min');
+                setSlider('Sensor_S1', 72.0, ' °C');
+                setSlider('Sensor_S2', 12.0, ' °C');
+                setSlider('Sensor_S3', 71.5, ' °C');
+                setSlider('Sensor_S4', 24.0, ' °C');
+            }
+            runLiveInference();
+        }
+
+        function setSlider(id, val, unit) {
+            const slider = document.getElementById(`slider_${id}`);
+            if (slider) slider.value = val;
+            const label = document.getElementById(`val_${id}`);
+            if (label) label.innerText = `${val}${unit}`;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchDashboardData();
+        });
+    </script>
+</body>
+</html>
