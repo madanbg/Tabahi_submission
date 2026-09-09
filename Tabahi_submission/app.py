@@ -170,10 +170,14 @@ def api_predict_single():
 @app.route("/download/<path:filename>")
 def download_file(filename):
     """Allow downloading submission files."""
-    allowed_files = ["Tabahi.csv", "summary.json", "summary.csv", "model_report.txt"]
-    if filename not in allowed_files:
-        return jsonify({"error": "File not allowed"}), 404
-    return send_from_directory(OUTPUT_DIR, filename, as_attachment=True)
+    allowed_output_files = ["Tabahi.csv", "summary.json", "summary.csv", "model_report.txt"]
+    allowed_root_files = ["your-tabahi-submission.zip", "your-teamname-submission.zip"]
+    
+    if filename in allowed_output_files:
+        return send_from_directory(OUTPUT_DIR, filename, as_attachment=True)
+    elif filename in allowed_root_files:
+        return send_from_directory(BASE_DIR, filename, as_attachment=True)
+    return jsonify({"error": "File not allowed"}), 404
 
 if __name__ == "__main__":
     initialize_models()
