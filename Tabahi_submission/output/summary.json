@@ -1,0 +1,13 @@
+{
+  "records_analysed": 350,
+  "abnormal_invalid_records_identified": 37,
+  "predicted_reference_parameter_min": 12.9684,
+  "predicted_reference_parameter_max": 55.4532,
+  "predicted_reference_parameter_average": 26.2943,
+  "test_ids_requiring_highest_attention": [
+    "TST-0002",
+    "TST-0271",
+    "TST-0008"
+  ],
+  "approach_summary": "We engineered target-free features (sensor differences, current/voltage ratio, missing-sensor flags, hard physical-range checks, and an IsolationForest anomaly score) so the pipeline works identically on unseen test data. A Random Forest classifier, trained on engineer-verified Valid/Invalid labels, learns to separate genuine operating-regime shifts from true sensor faults, rather than flagging statistical outliers alone. A second Random Forest, trained only on Valid records, predicts the Reference_Parameter. Sensor_S4 was down-weighted after EDA showed near-zero correlation with ground truth."
+}

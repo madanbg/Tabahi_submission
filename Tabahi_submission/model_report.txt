@@ -1,0 +1,38 @@
+=== Task 1: Validity Classifier (5-fold CV on Training_Data) ===
+Accuracy: 0.9650   F1 (Invalid class): 0.8511
+              precision    recall  f1-score   support
+
+       Valid      0.962     0.999     0.980       866
+     Invalid      0.990     0.746     0.851       134
+
+    accuracy                          0.965      1000
+   macro avg      0.976     0.873     0.916      1000
+weighted avg      0.966     0.965     0.963      1000
+
+Top feature importances (classifier):
+S_spread         0.186121
+S1_minus_S3      0.143482
+S1_minus_S2      0.132454
+anomaly_score    0.109875
+S2_minus_S3      0.086252
+Sensor_S2        0.039026
+Sensor_S1        0.034893
+Sensor_S3        0.034043
+
+=== Task 2: Reference_Parameter Regressor (5-fold CV on Valid rows) ===
+R2: 0.9866   MAE: 0.7316   RMSE: 1.2450
+Top feature importances (regressor):
+Load_Current_A           0.898773
+Sensor_S2                0.055550
+Ambient_Temperature_C    0.029065
+anomaly_score            0.003123
+S_spread                 0.002749
+power_proxy              0.001918
+S_mean                   0.001865
+Test_Duration_min        0.001072
+
+=== Test set outcome ===
+Records analysed: 350
+Predicted invalid on test set: 37
+Predicted_Reference_Parameter range: [12.9684, 55.4532], avg=26.2943
+Top-3 attention Test IDs: ['TST-0002', 'TST-0271', 'TST-0008']
